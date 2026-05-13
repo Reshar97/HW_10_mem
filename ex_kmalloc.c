@@ -3,38 +3,37 @@
 #include <linux/slab.h>
 #include <linux/ktime.h>
 
-#define ALLOC_SIZE (1024 * 1024)
+#define ALLOC_SIZE (1024 * 1024) // 1 MB
 
-static int __init ex_kmalloc_init(void) {
+static int __init kmalloc_init(void) {
     void *ptr;
     ktime_t start, end;
-    s64 diff_ns;
+    s64 actual_ns;
 
-    printk(KERN_INFO "kmalloc: Попытка выделить %d байт\n", ALLOC_SIZE);
+    pr_info("kmalloc: start allocation of %d bytes\n", ALLOC_SIZE);
 
-    start = ktime_get(); // Точное время "до"
+    start = ktime_get();
     ptr = kmalloc(ALLOC_SIZE, GFP_KERNEL);
-    end = ktime_get(); // Точное время "после"
+    end = ktime_get();
 
     if (!ptr) {
-        printk(KERN_ERR "kmalloc: Ошибка выделения памяти\n");
+        pr_err("kmalloc: FAIL (could not allocate %d bytes)\n", ALLOC_SIZE);
         return -ENOMEM;
     }
 
-    // Вычисляем разницу в наносекундах
-    diff_ns = ktime_to_ns(ktime_sub(end, start));
-    printk(KERN_INFO "kmalloc: %d байт выделено за %lld us (микросекунд)\n", ALLOC_SIZE, diff_ns / 1000);
+    actual_ns = ktime_to_ns(ktime_sub(end, start));
+    pr_info("kmalloc: SUCCESS, time: %lld us, addr: %p, type: physical\n", actual_ns / 1000, ptr);
 
     kfree(ptr);
     return 0;
 }
 
-static void __exit ex_kmalloc_exit(void) {
-    printk(KERN_INFO "kmalloc: Модуль выгружен\n");
+static void __exit kmalloc_exit(void) {
+    pr_info("kmalloc: module unloaded\n");
 }
 
-module_init(ex_kmalloc_init);
-module_exit(ex_kmalloc_exit);
+module_init(kmalloc_init);
+module_exit(kmalloc_exit);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Anton Zubin");
-MODULE_DESCRIPTION("Пример kmalloc");
+MODULE_DESCRIPTION("Demonstration of kmalloc");

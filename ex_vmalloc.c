@@ -23,7 +23,7 @@ static int __init ex_vmalloc_init(void) {
         return -ENOMEM;
     }
 
-    pr_info("vmalloc: SUCCESS, time: %lld us, addr: %p\n", actual_ns / 1000, ptr);
+    pr_info("vmalloc: SUCCESS, time: %lld us, addr: %p, type: virtually\n", actual_ns / 1000, ptr);
 
     vfree(ptr);
     return 0;
